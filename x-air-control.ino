@@ -1,26 +1,25 @@
 #include <FastLED_NeoPixel.h>
 #include <WiFi.h>
-#include <WiFiUdp.h>
-#include <OSCMessage.h>
-#include <OSCBundle.h>
-#include <OSCData.h>
 #include "system-state.h"
 #include "config.h"
+#include "channel-control.cpp"
+#include "osc-controller.h"
 
 FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB> leds;
 
 SystemState state;
 
-WiFiUDP Udp;
-const IPAddress consoleIp(192, 168, 1, 1); // XR/MR mixing console IP address
-const unsigned int consolePort = 10024;    // Console OSC port (for outgoing OSC messages : 10023 X32/M32, 10024 for XR/MR series)
-const unsigned int localUdpPort = 8888;    // Local OSC port (for incoming OSC messages)
-OSCErrorCode error;
+const IPAddress consoleIp(192, 168, 1, 1);
+
 
 unsigned long lastPingTime = 0;
 unsigned long lastPingResultTime = 0;
 
 bool snapshotLoaded = false;
+
+OscController oscController(consoleIp, 10024, 8888);
+ChannelControl channelA("/ch/01", 1, CRGB(0, 0, 255), &leds, &oscController);
+
 
 void setup()
 {
@@ -36,6 +35,19 @@ void setup()
     leds.show();
 
     state = WIFI_CONNECTING;
+
+    oscController.DeviceInfoCallback = [](DeviceInfo deviceInfo) {       
+        if(strcmp(deviceInfo.name, XAIR_ID) == 0)
+        {
+            lastPingResultTime = millis();
+            state = X_AIR_CONNECTED;
+        } else 
+        {
+            state = X_AIR_CONNECTING;
+        }
+    };
+
+    channelA.Setup();
 }
 
 void loop()
@@ -44,7 +56,7 @@ void loop()
     {
         if (state >= WIFI_CONNECTED)
         {
-            Udp.stop();
+            oscController.Disconnect();
         }
 
         state = WIFI_CONNECTING;
@@ -54,7 +66,7 @@ void loop()
         
         if(state < WIFI_CONNECTED)
         {
-            Udp.begin(localUdpPort);
+            oscController.Connect();
             state = X_AIR_CONNECTING;
         }
 
@@ -66,7 +78,7 @@ void loop()
         
         if (millis() - lastPingTime >= XAIR_PING_INTERVAL) 
         {
-            sendOscMessage("/info");
+            oscController.SendOscMessage("/info");
             lastPingTime = millis();
         }
 
@@ -76,7 +88,8 @@ void loop()
             snapshotLoaded = true;
         }
 
-        processIncomingMessages();
+        oscController.ProcessMessages();
+        channelA.Update();
     }
 
 
@@ -123,87 +136,8 @@ void loop()
     leds.show();
 }
 
-void processIncomingMessages()
-{
-    // Processes incoming OSC messages
-    OSCMessage msg;
-    int size = Udp.parsePacket();
-
-    if (size > 0)
-    {
-        while (size--)
-        {
-            msg.fill(Udp.read());
-        }
-        if (!msg.hasError())
-        {
-            msg.dispatch("/info", infoHandler);
-        }
-        else
-        {
-            error = msg.getError();
-            Serial.print("error: ");
-            Serial.println(error);
-        }
-    }
-}
-
-// Handler for X Air /info messages
-void infoHandler(OSCMessage &msg)
-{
-    if(msg.size() == 4)
-    {
-        char str[255];
-        msg.getString(1, str, 255);
-
-        Serial.println(str);
-
-        if (strcmp(str, XAIR_ID) == 0)
-        {
-            lastPingResultTime = millis();
-            state = X_AIR_CONNECTED;
-        } else {
-            state = X_AIR_CONNECTING;
-        }
-    }
-}
 
 void loadSnapshot(int snapshotIdx)
 {
-  sendOscMessage("/-snap/load", snapshotIdx);
-}
-
-void sendOscMessage(char command[])
-{
-    OSCMessage msg(command);
-
-    Udp.beginPacket(consoleIp, consolePort);
-    msg.send(Udp);
-    Udp.endPacket();
-
-    msg.empty();
-}
-
-void sendOscMessage(char command[], int value)
-{
-    OSCMessage msg(command);
-    msg.add(value);
-
-    Udp.beginPacket(consoleIp, consolePort);
-    msg.send(Udp);
-    Udp.endPacket();
-
-    msg.empty();
-}
-
-void sendOscMessage(char command[], float value)
-{
-    OSCMessage msg(command);
-    msg.add(value);
-
-    Udp.beginPacket(consoleIp, consolePort);
-    msg.send(Udp);
-    Udp.endPacket();
-
-    msg.empty();
+    oscController.SendOscMessage("/-snap/load", snapshotIdx);
 }
