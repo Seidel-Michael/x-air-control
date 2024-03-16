@@ -1,9 +1,11 @@
 #include <FastLED_NeoPixel.h>
 #include <WiFi.h>
+#include <Wire.h>
 #include "system-state.h"
 #include "config.h"
 #include "channel-control.cpp"
 #include "osc-controller.h"
+#include "rotary-encoder.h"
 
 FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB> leds;
 
@@ -18,12 +20,14 @@ unsigned long lastPingResultTime = 0;
 bool snapshotLoaded = false;
 
 OscController oscController(consoleIp, 10024, 8888);
-ChannelControl channelA("/ch/01", 1, CRGB(0, 0, 255), &leds, &oscController);
+RotaryEncoder encoderA(0x10, 0, 1000, 5, 750);
+ChannelControl channelA("/ch/01", 1, CRGB(0, 0, 255), &leds, &oscController, &encoderA);
 
 
 void setup()
 {
     Serial.begin(115200);
+    Wire.begin();
 
     leds.begin();
     leds.setBrightness(NEOPIXEL_BRIGHTNESS);
@@ -48,6 +52,7 @@ void setup()
     };
 
     channelA.Setup();
+    encoderA.Setup();
 }
 
 void loop()

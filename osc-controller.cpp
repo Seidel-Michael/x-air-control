@@ -68,6 +68,10 @@ void OscController::ProcessMessages()
             {
                 channelMuteHandler(msg);
             }
+            else if (String(msg.getAddress()).endsWith("/mix/fader"))
+            {
+                channelFaderHandler(msg);
+            }
             
         }
         else
@@ -82,6 +86,11 @@ void OscController::ProcessMessages()
 void OscController::RegisterMuteCallback(String channelPath, std::function<void(bool)> callback)
 {
     MuteCallbacks[channelPath] = callback;
+}
+
+void OscController::RegisterFaderCallback(String channelPath, std::function<void(float_t)> callback)
+{
+    FaderCallbacks[channelPath] = callback;
 }
 
 void OscController::deviceInfoHandler(OSCMessage &msg)
@@ -109,5 +118,15 @@ void OscController::channelMuteHandler(OSCMessage &msg)
     if (MuteCallbacks.find(msg.getAddress()) != MuteCallbacks.end())
     {
         MuteCallbacks[msg.getAddress()](state);
+    }
+}
+
+void OscController::channelFaderHandler(OSCMessage &msg)
+{
+    float_t faderValue = msg.getFloat(0);
+
+    if (FaderCallbacks.find(msg.getAddress()) != FaderCallbacks.end())
+    {
+        FaderCallbacks[msg.getAddress()](faderValue);
     }
 }

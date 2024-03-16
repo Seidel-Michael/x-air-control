@@ -223,6 +223,7 @@
                 "C:\\Users\\mail\\Documents\\Arduino\\libraries\\Adafruit_NeoPixel",
                 "C:\\Users\\mail\\Documents\\Arduino\\libraries\\FastLED\\src",
                 "C:\\Users\\mail\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\esp32\\2.0.12\\libraries\\WiFi\\src",
+                "C:\\Users\\mail\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\esp32\\2.0.12\\libraries\\Wire\\src",
                 "C:\\Users\\mail\\Documents\\Arduino\\libraries\\OSC",
                 "c:\\users\\mail\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32s3-elf-gcc\\esp-2021r2-patch5-8.4.0\\xtensa-esp32s3-elf\\include\\c++\\8.4.0",
                 "c:\\users\\mail\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32s3-elf-gcc\\esp-2021r2-patch5-8.4.0\\xtensa-esp32s3-elf\\include\\c++\\8.4.0\\xtensa-esp32s3-elf",

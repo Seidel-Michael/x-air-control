@@ -25,6 +25,7 @@ private:
     unsigned int localPort;
 
     std::map<String, std::function<void(bool)>> MuteCallbacks;
+    std::map<String, std::function<void(float_t)>> FaderCallbacks;
 
 public:
     deviceInfoCallback_t* DeviceInfoCallback = 0x00;
@@ -40,10 +41,12 @@ public:
     void SendOscMessage(String command);
     void ProcessMessages();
     void RegisterMuteCallback(String channelPath, std::function<void(bool)> callback);
+    void RegisterFaderCallback(String channelPath, std::function<void(float_t)> callback);
 
 private:
     void deviceInfoHandler(OSCMessage &msg);
     void channelMuteHandler(OSCMessage &msg);
+    void channelFaderHandler(OSCMessage &msg);
 };
 
 #endif // OSC_CONTROLLER_H
