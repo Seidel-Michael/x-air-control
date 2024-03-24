@@ -63,7 +63,19 @@ ChannelControl* pages[3][4] = {
 
 void setup()
 {
+    switch(esp_reset_reason())
+    {
+        case ESP_RST_POWERON:
+            // Only load snapshot on power on
+            snapshotLoaded = false;
+            break;
+        default:
+            snapshotLoaded = true;
+            break;
+    }
+
     Serial.begin(115200);
+
     Wire.begin();
 
     leds.begin();
