@@ -10,6 +10,9 @@
 #define CRGB_C(crgb) ((crgb.r << 16) | (crgb.g << 8) | crgb.b)
 #define MAPFLOAT(x, in_min, in_max, out_min, out_max) ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
+#define MAP_RANGE_LOWER_BOUNDARY 5000
+#define MAP_RANGE_UPPER_BOUNDARY 7500
+
 class ChannelControl {
 private:
     bool faderReceived;
@@ -27,7 +30,7 @@ private:
     bool lastPressed;
 
     bool muted;
-    float_t fader;
+    int16_t fader;
 
 public:
     ChannelControl(const String channelPath, const uint8_t channelStartLed, const CRGB channelColor, FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB>* leds, OscController* oscController, RotaryEncoder* encoder);

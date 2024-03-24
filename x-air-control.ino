@@ -30,48 +30,35 @@ uint8_t currentPage = 0;
 
 OscController oscController(consoleIp, 10024, 8888);
 
-RotaryEncoder encoderA(0x10, 0, 1000, 5, 750);
-RotaryEncoder encoderB(0x20, 0, 1000, 5, 750);
-RotaryEncoder encoderC(0x30, 0, 1000, 5, 750);
-RotaryEncoder encoderD(0x40, 0, 1000, 5, 750);
+RotaryEncoder encoderA(0x10, ROTARY_ENCODER_MIN_VALUE, ROTARY_ENCODER_MAX_VALUE, ROTARY_ENCODER_STEP, ROTARY_ENCODER_MIN_VALUE);
+RotaryEncoder encoderB(0x20, ROTARY_ENCODER_MIN_VALUE, ROTARY_ENCODER_MAX_VALUE, ROTARY_ENCODER_STEP, ROTARY_ENCODER_MIN_VALUE);
+// RotaryEncoder encoderC(0x30, 0, 1000, 5, 750);
+// RotaryEncoder encoderD(0x40, 0, 1000, 5, 750);
 
 // Page 1
 ChannelControl channel11("/ch/11", 1, CRGB(0, 255, 255), &leds, &oscController, &encoderA); // Funkmikro
 ChannelControl channel05("/ch/05", 9, CRGB(255, 255, 0), &leds, &oscController, &encoderB);  // HDMI (5/6)
-ChannelControl channel07("/ch/07", 17, CRGB(0, 0, 255), &leds, &oscController, &encoderC); // Bluetooth (7/8)
-ChannelControl channelMain("/lr", 25, CRGB(255, 255, 255), &leds, &oscController, &encoderD); // Main L/R
+// ChannelControl channel07("/ch/07", 17, CRGB(0, 0, 255), &leds, &oscController, &encoderC); // Bluetooth (7/8)
+// ChannelControl channelMain("/lr", 25, CRGB(255, 255, 255), &leds, &oscController, &encoderD); // Main L/R
 
-// Page 2
-ChannelControl channel01("/ch/01", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 1
-ChannelControl channel02("/ch/02", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 2
-ChannelControl channel12("/ch/12", 17, CRGB(255, 0, 255), &leds, &oscController, &encoderC); // Klinke
-// Main
+// // Page 2
+// ChannelControl channel01("/ch/01", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 1
+// ChannelControl channel02("/ch/02", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 2
+// ChannelControl channel12("/ch/12", 17, CRGB(255, 0, 255), &leds, &oscController, &encoderC); // Klinke
+// // Main
 
-// Page 3
-ChannelControl channel03("/ch/03", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 3
-ChannelControl channel04("/ch/04", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 4
-ChannelControl channel09("/ch/09", 17, CRGB(255, 255, 0), &leds, &oscController, &encoderC); // Klinke (9/10)
-// Main
+// // Page 3
+// ChannelControl channel03("/ch/03", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 3
+// ChannelControl channel04("/ch/04", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 4
+// ChannelControl channel09("/ch/09", 17, CRGB(255, 255, 0), &leds, &oscController, &encoderC); // Klinke (9/10)
+// // Main
 
 
-ChannelControl pages[3][4] = {
-    {channel11, channel05, channel07, channelMain},
-    {channel01, channel02, channel12, channelMain},
-    {channel03, channel04, channel09, channelMain}
-};
-
-std::map<String, ChannelControl*> channelMap = {
-    {"/ch/11", &channel11},
-    {"/ch/05", &channel05},
-    {"/ch/07", &channel07},
-    {"/lr", &channelMain},
-    {"/ch/01", &channel01},
-    {"/ch/02", &channel02},
-    {"/ch/12", &channel12},
-    {"/ch/03", &channel03},
-    {"/ch/04", &channel04},
-    {"/ch/09", &channel09}
-};
+// ChannelControl pages[3][4] = {
+//     {channel11, channel05, channel07, channelMain},
+//     {channel01, channel02, channel12, channelMain},
+//     {channel03, channel04, channel09, channelMain}
+// };
 
 
 void setup()
@@ -100,28 +87,21 @@ void setup()
             state = X_AIR_CONNECTING;
         }
     };
-
-    oscController.MuteCallback = [](String channelPath, bool state) {
-        MuteCallback(channelPath, state);
-        channel11.Update();
-    };
-    oscController.FaderCallback = FaderCallback;
-
     channel11.Setup();
     channel05.Setup();
-    channel07.Setup();
-    channelMain.Setup();
-    channel01.Setup();
-    channel02.Setup();
-    channel12.Setup();
-    channel03.Setup();
-    channel04.Setup();
-    channel09.Setup();
+    // channel07.Setup();
+    // channelMain.Setup();
+    // channel01.Setup();
+    // channel02.Setup();
+    // channel12.Setup();
+    // channel03.Setup();
+    // channel04.Setup();
+    // channel09.Setup();
     
     encoderA.Setup();
     encoderB.Setup();
-    encoderC.Setup();
-    encoderD.Setup();
+    // encoderC.Setup();
+    // encoderD.Setup();
 
     pinMode(BUTTON_PIN, INPUT);
 }
@@ -166,7 +146,9 @@ void loop()
 
         oscController.ProcessMessages();
 
-        pages[currentPage][0].Update();
+        channel11.Update();
+        channel05.Update();
+        //pages[currentPage][0].Update();
         //pages[currentPage][1].Update();
         //pages[currentPage][2].Update();
         //pages[currentPage][3].Update();
@@ -191,10 +173,10 @@ void loop()
                         currentPage = 0;
                     }
 
-                    pages[currentPage][0].PageSwitched();
-                    pages[currentPage][1].PageSwitched();
-                    pages[currentPage][2].PageSwitched();
-                    pages[currentPage][3].PageSwitched();
+                    // pages[currentPage][0].PageSwitched();
+                    // pages[currentPage][1].PageSwitched();
+                    // pages[currentPage][2].PageSwitched();
+                    // pages[currentPage][3].PageSwitched();
                 }
             }
         }
@@ -270,20 +252,4 @@ void loop()
 void loadSnapshot(int snapshotIdx)
 {
     oscController.SendOscMessage("/-snap/load", snapshotIdx);
-}
-
-static void MuteCallback(String channelPath, bool state)
-{
-    if (channelMap.count(channelPath) > 0)
-    {
-        channelMap[channelPath]->MuteCallback(state);
-    }
-}
-
-static void FaderCallback(String channelPath, float_t faderValue)
-{
-    if (channelMap.count(channelPath) > 0)
-    {
-        channelMap[channelPath]->FaderCallback(faderValue);
-    }
 }

@@ -5,6 +5,7 @@
 #include "osc-controller.h"
 #include "rotary-encoder.h"
 
+
 ChannelControl::ChannelControl(const String channelPath, const uint8_t channelStartLed, const CRGB channelColor, FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB> *leds, OscController *oscController, RotaryEncoder *encoder)
 {
     this->channelPath = channelPath;
@@ -13,23 +14,32 @@ ChannelControl::ChannelControl(const String channelPath, const uint8_t channelSt
     this->oscController = oscController;
     this->encoder = encoder;
     this->leds = leds;
+
+    this->rangeLeds[0] = 5;
+    this->rangeLeds[1] = 6;
+    this->rangeLeds[2] = 7;
+    this->rangeLeds[3] = 0;
+    this->rangeLeds[4] = 1;
+    this->rangeLeds[5] = 2;
+    this->rangeLeds[6] = 3;
 }
 
 void ChannelControl::Setup()
 {
-
+    oscController->RegisterMuteCallback(channelPath + "/mix/on", std::bind(&ChannelControl::MuteCallback, this, std::placeholders::_1));
+    oscController->RegisterFaderCallback(channelPath + "/mix/fader", std::bind(&ChannelControl::FaderCallback, this, std::placeholders::_1));
 }
 
 void ChannelControl::MuteCallback(bool state)
 {
-    Serial.println(String((uint64_t)this) + "Mute callback for " + channelPath + " called with state " + String(state) + " old state: " + String(this->muted));
     this->muted = state;
 }
 
 void ChannelControl::FaderCallback(float_t faderValue)
 {
-    this->fader = faderValue;
-    this->encoder->setValue((1 - faderValue) * 1000);
+    this->fader = round(faderValue * ROTARY_ENCODER_MAX_VALUE);
+    this->encoder->setValue(this->fader);
+
     this->faderReceived = true;
 }
 
@@ -42,7 +52,6 @@ void ChannelControl::PageSwitched()
 
 void ChannelControl::Update()
 {
-    Serial.println(String((uint64_t)this) + "Update for " + channelPath + " calleed." + "Muted: " + String(this->muted) + " Fader: " + String(this->fader) + " FaderReceived: " + String(faderReceived));
     bool pressed = encoder->isPressed();
     if (pressed && !lastPressed)
     {
@@ -51,11 +60,12 @@ void ChannelControl::Update()
     }
     this->lastPressed = pressed;
 
-    float_t value = encoder->getValue();
-    if (value != (1 - this->fader) * 1000 && this->faderReceived)
+    int16_t value = encoder->getValue();
+    if (value != this->fader && this->faderReceived)
     {
-        this->fader = 1 - value / 1000;
-        oscController->SendOscMessage(channelPath + "/mix/fader", this->fader);
+        this->fader = value;
+        float_t newValue = float(this->fader) / ROTARY_ENCODER_MAX_VALUE;
+        oscController->SendOscMessage(channelPath + "/mix/fader", newValue);
     }
 
     if (this->muted)
@@ -66,21 +76,18 @@ void ChannelControl::Update()
     {
         leds->fill(CRGB::Black, channelStartLed, 8);
 
-        float faderLed;
-        if (this->fader <= 0.5)
+        float_t faderLed;
+        if (this->fader <= MAP_RANGE_LOWER_BOUNDARY)
         {
-            // Map [0, 0.5] to [0, 3]
-            faderLed = MAPFLOAT(this->fader, 0.0, 0.5, 0.0, 2.0);
+            faderLed = MAPFLOAT(this->fader, 0, MAP_RANGE_LOWER_BOUNDARY, 0.0, 2.0);
         }
-        else if (this->fader <= 0.75)
+        else if (this->fader <= MAP_RANGE_UPPER_BOUNDARY)
         {
-            // Map [0.5, 0.75] to [3, 4]
-            faderLed = MAPFLOAT(this->fader, 0.5, 0.75, 2.0, 4.0);
+            faderLed = MAPFLOAT(this->fader, MAP_RANGE_LOWER_BOUNDARY, MAP_RANGE_UPPER_BOUNDARY, 2.0, 4.0);
         }
         else
         {
-            // Map [0.75, 1.0] to [4, 7]
-            faderLed = MAPFLOAT(this->fader, 0.75, 1.0, 4.0, 7.0);
+            faderLed = MAPFLOAT(this->fader, MAP_RANGE_UPPER_BOUNDARY, ROTARY_ENCODER_MAX_VALUE, 4.0, 7.0);
         }
 
         uint32_t faderLed1 = floor(faderLed);

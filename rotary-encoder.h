@@ -1,6 +1,10 @@
 #ifndef ROTARY_ENCODER_H
 #define ROTARY_ENCODER_H
 
+#define ROTARY_ENCODER_MAX_VALUE 10000
+#define ROTARY_ENCODER_MIN_VALUE 0
+#define ROTARY_ENCODER_STEP 50
+
 #include <Wire.h>
 
 class RotaryEncoder {
