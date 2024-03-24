@@ -83,16 +83,6 @@ void OscController::ProcessMessages()
     }
 }
 
-void OscController::RegisterMuteCallback(String channelPath, std::function<void(bool)> callback)
-{
-    MuteCallbacks[channelPath] = callback;
-}
-
-void OscController::RegisterFaderCallback(String channelPath, std::function<void(float_t)> callback)
-{
-    FaderCallbacks[channelPath] = callback;
-}
-
 void OscController::deviceInfoHandler(OSCMessage &msg)
 {
     if (msg.size() == 4)
@@ -114,19 +104,27 @@ void OscController::deviceInfoHandler(OSCMessage &msg)
 void OscController::channelMuteHandler(OSCMessage &msg)
 {
     boolean state = msg.getInt(0) == 0;
+    String address = msg.getAddress();
+    const String suffixToRemove = "/main/on";
+    const int suffixLength = suffixToRemove.length();
+    address.remove(address.length() - suffixLength + 1);
 
-    if (MuteCallbacks.find(msg.getAddress()) != MuteCallbacks.end())
+    if(MuteCallback != 0x00)
     {
-        MuteCallbacks[msg.getAddress()](state);
+        MuteCallback(address, state);
     }
 }
 
 void OscController::channelFaderHandler(OSCMessage &msg)
 {
     float_t faderValue = msg.getFloat(0);
+    String address = msg.getAddress();
+    const String suffixToRemove = "/main/fader";
+    const int suffixLength = suffixToRemove.length();
+    address.remove(address.length() - suffixLength + 1);
 
-    if (FaderCallbacks.find(msg.getAddress()) != FaderCallbacks.end())
+    if(FaderCallback != 0x00)
     {
-        FaderCallbacks[msg.getAddress()](faderValue);
+        FaderCallback(address, faderValue);
     }
 }

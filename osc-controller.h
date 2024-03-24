@@ -6,7 +6,6 @@
 #include <WiFiUdp.h>
 #include <OSCMessage.h>
 #include <map>
-#include <functional>
 
 struct DeviceInfo {
     char serverVersion[255];
@@ -16,6 +15,8 @@ struct DeviceInfo {
 };
 
 typedef void (deviceInfoCallback_t)(DeviceInfo deviceInfo);
+typedef void (muteCallback_t)(String channelPath, bool state);
+typedef void (faderCallback_t)(String channelPath, float value);
 
 class OscController {
 private:
@@ -24,11 +25,10 @@ private:
     unsigned int targetPort;
     unsigned int localPort;
 
-    std::map<String, std::function<void(bool)>> MuteCallbacks;
-    std::map<String, std::function<void(float_t)>> FaderCallbacks;
-
 public:
     deviceInfoCallback_t* DeviceInfoCallback = 0x00;
+    muteCallback_t* MuteCallback = 0x00;
+    faderCallback_t* FaderCallback = 0x00;
 
     OscController(const IPAddress ip, const unsigned int targetPort, const unsigned int localPort);
 
@@ -40,8 +40,6 @@ public:
     void SendOscMessage(String command, int value );
     void SendOscMessage(String command);
     void ProcessMessages();
-    void RegisterMuteCallback(String channelPath, std::function<void(bool)> callback);
-    void RegisterFaderCallback(String channelPath, std::function<void(float_t)> callback);
 
 private:
     void deviceInfoHandler(OSCMessage &msg);
