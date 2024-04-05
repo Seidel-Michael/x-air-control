@@ -15,6 +15,6 @@ extern char XAIR_ID[];
 
 #define NEOPIXEL_DATA_PIN 1
 #define NEOPIXEL_NUM_LEDS 36
-#define NEOPIXEL_BRIGHTNESS 25
+#define NEOPIXEL_BRIGHTNESS 75
 
 #endif // CONFIG_H

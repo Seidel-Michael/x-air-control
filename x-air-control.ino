@@ -36,28 +36,29 @@ RotaryEncoder encoderC(0x30, ROTARY_ENCODER_MIN_VALUE, ROTARY_ENCODER_MAX_VALUE,
 RotaryEncoder encoderD(0x40, ROTARY_ENCODER_MIN_VALUE, ROTARY_ENCODER_MAX_VALUE, ROTARY_ENCODER_STEP, ROTARY_ENCODER_MIN_VALUE);
 
 // Page 1
-ChannelControl channel11("/ch/11", 1, CRGB(0, 255, 255), &leds, &oscController, &encoderA); // Funkmikro
-ChannelControl channel05("/ch/05", 9, CRGB(255, 255, 0), &leds, &oscController, &encoderB);  // HDMI (5/6)
+ChannelControl channel11("/ch/11", 1, CRGB(0, 0, 255), &leds, &oscController, &encoderA); // Funkmikro
+ChannelControl channel05("/ch/05", 9, CRGB(0, 0, 255), &leds, &oscController, &encoderB);  // HDMI (5/6)
 ChannelControl channel07("/ch/07", 17, CRGB(0, 0, 255), &leds, &oscController, &encoderC); // Bluetooth (7/8)
 ChannelControl channelMain("/lr", 25, CRGB(255, 255, 255), &leds, &oscController, &encoderD); // Main L/R
 
 // Page 2
 ChannelControl channel01("/ch/01", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 1
-ChannelControl channel02("/ch/02", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 2
-ChannelControl channel12("/ch/12", 17, CRGB(255, 0, 255), &leds, &oscController, &encoderC); // Klinke
+ChannelControl channel12("/ch/12", 17, CRGB(0, 255, 0), &leds, &oscController, &encoderC); // Klinke
+ChannelControl channel09("/ch/09", 17, CRGB(0, 255, 0), &leds, &oscController, &encoderC); // Chinch (9/10)
 // Main
 
 // Page 3
-ChannelControl channel03("/ch/03", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 3
-ChannelControl channel04("/ch/04", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // XLR 4
-ChannelControl channel09("/ch/09", 17, CRGB(255, 255, 0), &leds, &oscController, &encoderC); // Klinke (9/10)
+ChannelControl channel02("/ch/02", 9, CRGB(255, 0, 255), &leds, &oscController, &encoderB); // XLR 2
+ChannelControl channel03("/ch/03", 1, CRGB(255, 0, 255), &leds, &oscController, &encoderA); // XLR 3
+ChannelControl channel04("/ch/04", 9, CRGB(255, 0, 255), &leds, &oscController, &encoderB); // XLR 4
+
 // Main
 
 
 ChannelControl* pages[3][4] = {
     {&channel11, &channel05, &channel07, &channelMain},
-    {&channel01, &channel02, &channel12, &channelMain},
-    {&channel03, &channel04, &channel09, &channelMain}
+    {&channel01, &channel12, &channel09, &channelMain},
+    {&channel02, &channel03, &channel04, &channelMain}
 };
 
 
@@ -199,19 +200,19 @@ void loop()
     switch(currentPage)
     {
         case 0:
-            leds.setPixelColor(33, 255, 255, 255);
+            leds.setPixelColor(33, 0, 0, 255);
             leds.setPixelColor(34, 0, 0, 0);
             leds.setPixelColor(35, 0, 0, 0);
             break;
         case 1:
             leds.setPixelColor(33, 0, 0, 0);
-            leds.setPixelColor(34, 255, 255, 255);
+            leds.setPixelColor(34, 0, 255, 0);
             leds.setPixelColor(35, 0, 0, 0);
             break;
         case 2:
             leds.setPixelColor(33, 0, 0, 0);
             leds.setPixelColor(34, 0, 0, 0);
-            leds.setPixelColor(35, 255, 255, 255);
+            leds.setPixelColor(35, 255, 0, 255);
             break;
     }
 
