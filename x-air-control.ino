@@ -12,7 +12,7 @@ FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB> leds;
 
 SystemState state;
 
-const IPAddress consoleIp(192, 168, 1, 1);
+const IPAddress consoleIp(192, 168, 0, 10);
 
 #define BUTTON_PIN D6
 const int debounceDelay = 50;
@@ -43,14 +43,14 @@ ChannelControl channelMain("/lr", 25, CRGB(255, 255, 255), &leds, &oscController
 
 // Page 2
 ChannelControl channel01("/ch/01", 1, CRGB(0, 255, 0), &leds, &oscController, &encoderA); // XLR 1
-ChannelControl channel12("/ch/12", 17, CRGB(0, 255, 0), &leds, &oscController, &encoderC); // Klinke
+ChannelControl channel12("/ch/12", 9, CRGB(0, 255, 0), &leds, &oscController, &encoderB); // Klinke
 ChannelControl channel09("/ch/09", 17, CRGB(0, 255, 0), &leds, &oscController, &encoderC); // Chinch (9/10)
 // Main
 
 // Page 3
-ChannelControl channel02("/ch/02", 9, CRGB(255, 0, 255), &leds, &oscController, &encoderB); // XLR 2
-ChannelControl channel03("/ch/03", 1, CRGB(255, 0, 255), &leds, &oscController, &encoderA); // XLR 3
-ChannelControl channel04("/ch/04", 9, CRGB(255, 0, 255), &leds, &oscController, &encoderB); // XLR 4
+ChannelControl channel02("/ch/02", 1, CRGB(255, 0, 255), &leds, &oscController, &encoderA); // XLR 2
+ChannelControl channel03("/ch/03", 9, CRGB(255, 0, 255), &leds, &oscController, &encoderB); // XLR 3
+ChannelControl channel04("/ch/04", 17, CRGB(255, 0, 255), &leds, &oscController, &encoderC); // XLR 4
 
 // Main
 
