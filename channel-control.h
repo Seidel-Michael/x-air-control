@@ -25,6 +25,9 @@ private:
 
     uint8_t rangeLeds[7];
 
+    uint32_t blinkTime;
+    uint32_t lastBlinkTime;
+    bool lastBlinkState;
     uint32_t lastRefreshMute;
     uint32_t lastRefreshFader;
     bool lastPressed;
@@ -39,6 +42,7 @@ public:
     void FaderCallback(float_t faderValue);
     void PageSwitched();
     void Update();
+    void SetBlinkTime(uint32_t blinkTime) { this->blinkTime = blinkTime; };
 };
 
 #endif // CHANNEL_CONTROL_H

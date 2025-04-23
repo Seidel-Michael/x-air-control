@@ -104,6 +104,7 @@ void setup()
     channel05.Setup();
     channel07.Setup();
     channelMain.Setup();
+    channelMain.SetBlinkTime(350); // 500ms
     channel01.Setup();
     channel02.Setup();
     channel12.Setup();

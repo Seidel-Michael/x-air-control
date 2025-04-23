@@ -5,7 +5,6 @@
 #include "osc-controller.h"
 #include "rotary-encoder.h"
 
-
 ChannelControl::ChannelControl(const String channelPath, const uint8_t channelStartLed, const CRGB channelColor, FastLED_NeoPixel<NEOPIXEL_NUM_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB> *leds, OscController *oscController, RotaryEncoder *encoder)
 {
     this->channelPath = channelPath;
@@ -70,7 +69,26 @@ void ChannelControl::Update()
 
     if (this->muted)
     {
-        leds->fill(CRGB::Red, channelStartLed, 8);
+        if (blinkTime > 0)
+        {
+            if (millis() - lastBlinkTime > blinkTime)
+            {
+                lastBlinkTime = millis();
+                lastBlinkState = !lastBlinkState;
+            }
+            if (lastBlinkState)
+            {
+                leds->fill(CRGB::Black, channelStartLed, 8);
+            }
+            else
+            {
+                leds->fill(CRGB::Red, channelStartLed, 8);
+            }
+        }
+        else
+        {
+            leds->fill(CRGB::Red, channelStartLed, 8);
+        }
     }
     else
     {
@@ -87,7 +105,7 @@ void ChannelControl::Update()
         }
         else
         {
-            faderLed = MAPFLOAT(this->fader, MAP_RANGE_UPPER_BOUNDARY, ROTARY_ENCODER_MAX_VALUE, 4.0, 7.0);
+            faderLed = MAPFLOAT(this->fader, MAP_RANGE_UPPER_BOUNDARY, ROTARY_ENCODER_MAX_VALUE, 4.0, 6.0);
         }
 
         uint32_t faderLed1 = floor(faderLed);
